@@ -4,8 +4,7 @@ import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
 
 import pl.edu.uj.paperfootball.bluetooth.AcceptThread;
-import pl.edu.uj.paperfootball.bluetooth.ConnectThread;
-import pl.edu.uj.paperfootball.bluetooth.DeviceListActivity;
+
 import pl.edu.uj.paperfootball.bluetooth.GameThread;
 import pl.edu.uj.paperfootball.bluetooth.GameThread.MoveState;
 import pl.edu.uj.paperfootball.packets.Packet;
@@ -18,8 +17,7 @@ import pl.edu.uj.paperfootball.utils.SavedGamesView;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -43,13 +41,10 @@ import pl.edu.uj.paperfootball.R;
 /**
  * Activity with SCanvasView where you can draw game lines.
  */
-public class GameViewActivity extends Activity implements AnimationProcessListener {
+public class GameViewActivity extends Activity implements
+		AnimationProcessListener {
 
 	private static final String TAG = GameViewActivity.class.getSimpleName();
-
-	// Intent request codes
-	private static final int REQUEST_CONNECT_DEVICE_INSECURE = 7;
-	private static final int REQUEST_ENABLE_BT = 8;
 
 	public static final String EXTRA_GAME_MODE = "ExtraGameMode";
 	public static final int SERVER = 1;
@@ -59,7 +54,6 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 	public static final int LOAD_GAME = 5;
 	public static final int SERVER_LOAD_GAME = 6;
 	public static final int HELP = 7;
-
 
 	// Views
 	private Button mShowGameReplayButton;
@@ -72,12 +66,9 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 	// Game model
 	private CurrentPlaygroundState mCPS;
 
-	// Bluetooth connection
-	private BluetoothAdapter mBluetoothAdapter;
-
 	// Game threads
 	private AcceptThread mAcceptThread;
-	private ConnectThread mConnectThread;
+
 	private GameThread mGameThread;
 
 	// Other
@@ -97,7 +88,7 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 	}
 
 	/**
-	 * Starts game with given game mode, also enables Bluetooth if it is necessary.
+	 * Starts game with given game mode
 	 * 
 	 * @param savedInstanceState
 	 *            Saved instance state.
@@ -130,10 +121,10 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 
 		DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-		mCPS = new CurrentPlaygroundState(displayMetrics.widthPixels, displayMetrics.heightPixels);
+		mCPS = new CurrentPlaygroundState(displayMetrics.widthPixels,
+				displayMetrics.heightPixels);
 		mRefreshHandler = new RefreshHandler(this);
 
-		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 
 		setContentView(R.layout.main);
@@ -158,8 +149,10 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 			mCPS.setNextPlayerMove(true);
 		}
 
-		mGameManager = new GameManager(mGameSCanvasViewTop, gameCanvasBottom, mCPS, mRefreshHandler, this);
-		mGameSCanvasViewTop.setBallParams(mCPS.getBallNode().getCanvasCoordinateX(), mCPS.getBallNode()
+		mGameManager = new GameManager(mGameSCanvasViewTop, gameCanvasBottom,
+				mCPS, mRefreshHandler, this);
+		mGameSCanvasViewTop.setBallParams(mCPS.getBallNode()
+				.getCanvasCoordinateX(), mCPS.getBallNode()
 				.getCanvasCoordinateY());
 		mBallView.setVisibility(View.VISIBLE);
 
@@ -194,10 +187,13 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 			Log.e(TAG, "Fail to close SCanvasView");
 		}
 
-		// According to documentation: close() can be used to abort this call from another thread.
-		// Should close mServerSocket from AcceptThread class but causes SIGSEGV - do not use
+		// According to documentation: close() can be used to abort this call
+		// from another thread.
+		// Should close mServerSocket from AcceptThread class but causes SIGSEGV
+		// - do not use
 		// mAcceptThread.cancelServerSocket();
-		// workaround: cancelThread() function is called which sets the mRunThread flag
+		// workaround: cancelThread() function is called which sets the
+		// mRunThread flag
 
 		if (mGameMode == SERVER && mAcceptThread != null) {
 			mAcceptThread.cancelThread();
@@ -212,7 +208,8 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 	}
 
 	/**
-	 * On back key pressed shows play again dialog when the game is finished or save game dialog if not.
+	 * On back key pressed shows play again dialog when the game is finished or
+	 * save game dialog if not.
 	 */
 	@Override
 	public void onBackPressed() {
@@ -225,57 +222,6 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 		}
 	}
 
-	/**
-	 * Called when other activity returns with result.
-	 * 
-	 * @param requestCode
-	 *            Request code.
-	 * @param resultCode
-	 *            Result code.
-	 * @param data
-	 *            Intent.
-	 */
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch (requestCode) {
-		case REQUEST_CONNECT_DEVICE_INSECURE:
-			if (resultCode == Activity.RESULT_OK) {
-				// When DeviceListActivity returns with a device to connect.
-				boolean successfullConnection = connectDevice(data);
-
-				if (!successfullConnection) {
-					finish();
-				}
-			} else {
-				// will call onDestroy() where is dismissConnectingDialog() and cancelConnectionTimeout();
-				finish();
-			}
-			break;
-		case REQUEST_ENABLE_BT:
-			if (resultCode != Activity.RESULT_CANCELED) {
-				// When the request to enable Bluetooth returns.
-				if (mGameMode == CLIENT) {
-					obtainDeviceList();
-				} else if (mGameMode == SERVER) {
-					startServerThreads();
-				}
-			} else {
-				// User did not enable Bluetooth or an error occurred.
-				Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
-				finish();
-			}
-			break;
-		default:
-			throw new IllegalArgumentException("Unknown activity requestCode " + requestCode);
-		}
-	}
-
-	/**
-	 * TODO.
-	 * 
-	 * @param arg0
-	 *            TODO.
-	 */
 	@Override
 	public void onChangeProgress(int arg0) {
 		// do nothing
@@ -295,12 +241,13 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 	}
 
 	/**
-	 * Shows game replay if it is a game on one phone, otherwise sends packet to the opponent with question whether to
-	 * play a game replay.
+	 * Shows game replay if it is a game on one phone, otherwise sends packet to
+	 * the opponent with question whether to play a game replay.
 	 */
 	private void showGameReplay() {
 		if (mGameMode == CLIENT || mGameMode == SERVER) {
-			mGameManager.sendPacket(new Packet(PacketType.REQUEST_SHOW_GAME_REPLAY, true));
+			mGameManager.sendPacket(new Packet(
+					PacketType.REQUEST_SHOW_GAME_REPLAY, true));
 			showWaitingForReplayDialog();
 		} else {
 			doAnimationPlay();
@@ -328,87 +275,9 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 		} else if (nAnimationState == SAMMLibConstants.ANIMATION_STATE_ON_PAUSED) {
 			mGameSCanvasViewTop.doAnimationResume();
 		} else if (nAnimationState == SAMMLibConstants.ANIMATION_STATE_OFF_ANIMATION) {
-			Toast.makeText(this, "animation mode = OFF", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "animation mode = OFF", Toast.LENGTH_SHORT)
+					.show();
 		}
-	}
-
-	
-
-	/**
-	 * Shows DeviceListActivity.
-	 */
-	private void obtainDeviceList() {
-		Intent deviceList = new Intent(this, DeviceListActivity.class);
-		startActivityForResult(deviceList, REQUEST_CONNECT_DEVICE_INSECURE);
-	}
-
-	/**
-	 * Starts thread as server if the game is via Bluetooth.
-	 */
-	private void startServerThreads() {
-		// Here mMoveState can be WAIT_FOR_MY_MOVE or MY_MOVE_SEND_MOVES_VIA_BLUETOOTH.
-		if (mMoveState == null) {
-			mMoveState = MoveState.WAIT_FOR_MY_MOVE;
-		}
-		mGameThread = new GameThread(mRefreshHandler, mMoveState, mCPS, mCountDownLatch,
-				mGameManager.getStateRecorder());
-
-		// Here SCanvas is NOT initialized yet -> so there is no information about isNextPlayerMove.
-		// To setMoveState I need to do it in GameThread.prepareLoadGamePacket() method.
-		setMoveState(MoveState.WAIT_FOR_MY_MOVE);
-		updateWhoseMoveView(MoveState.WAIT_FOR_MY_MOVE);
-		mAcceptThread = new AcceptThread(mBluetoothAdapter, mGameThread, mRefreshHandler);
-		mAcceptThread.start();
-
-		// set listeners for presenter
-		mGameThread.addPropertyChangeListener(mGameManager);
-		mGameManager.addPropertyChangeListener(mGameThread);
-	}
-
-	/**
-	 * Starts thread as client if the game is via Bluetooth.
-	 * 
-	 * @param bluetoothDevice
-	 *            Object representing a remote Bluetooth device.
-	 */
-	private void startClientThreads(BluetoothDevice bluetoothDevice) {
-		if (mGameMode == CLIENT) {
-			mGameThread = new GameThread(mRefreshHandler, MoveState.OPPONENT_MOVE, mCPS, mCountDownLatch,
-					mGameManager.getStateRecorder());
-			setMoveState(MoveState.OPPONENT_MOVE);
-			updateWhoseMoveView(MoveState.OPPONENT_MOVE);
-			toggleShowGameReplayButton();
-			mConnectThread = new ConnectThread(mBluetoothAdapter, bluetoothDevice, mGameThread, mRefreshHandler);
-			mConnectThread.start();
-		}
-
-		// Set listeners for presenter
-		mGameThread.addPropertyChangeListener(mGameManager);
-		mGameManager.addPropertyChangeListener(mGameThread);
-	}
-
-	/**
-	 * Connects two devices via Bluetooth.
-	 * 
-	 * @param data
-	 *            Intent with device address as extra string.
-	 * @return Returns true if connection succeeded.
-	 */
-	private boolean connectDevice(Intent data) {
-		// Get the device MAC address
-		Bundle extras = data.getExtras();
-		String address = null;
-		if (extras != null) {
-			address = extras.getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-		} else {
-			return false;
-		}
-
-		// Get the BluetoothDevice object
-		BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-		// Attempt to connect to the device
-		startClientThreads(device);
-		return true;
 	}
 
 	/**
@@ -419,9 +288,6 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 		stateRecorder.delete(StateRecorder.CURRENT_GAMESTATE_NAME);
 		stateRecorder.clear();
 	}
-
-	
-	
 
 	/**
 	 * Dismisses progress dialog.
@@ -443,7 +309,8 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 	 * Shows or hide show game replay button.
 	 */
 	public void toggleShowGameReplayButton() {
-		if (mShowGameReplayButton.getVisibility() == View.VISIBLE ? true : false) {
+		if (mShowGameReplayButton.getVisibility() == View.VISIBLE ? true
+				: false) {
 			mShowGameReplayButton.setVisibility(View.INVISIBLE);
 		} else {
 			mShowGameReplayButton.setVisibility(View.VISIBLE);
@@ -480,27 +347,34 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 	 * Shows progress dialog.
 	 */
 	private void showWaitingForReplayDialog() {
-		mDialog = ProgressDialog.show(this, "", getString(R.string.waiting_for_replay), true);
+		mDialog = ProgressDialog.show(this, "",
+				getString(R.string.waiting_for_replay), true);
 	}
 
 	/**
-	 * Shows a dialog that allows the player to choose whether or not to show a game replay.
+	 * Shows a dialog that allows the player to choose whether or not to show a
+	 * game replay.
 	 */
 	public void showChooseAnswerDialog() {
 		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(getString(R.string.replay_question)).setCancelable(false)
-				.setPositiveButton(getString(R.string.yes_button_text), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int id) {
-						mGameManager.sendPacket(new PacketAnswer(true));
-						showReplay();
-					}
-				}).setNegativeButton(getString(R.string.no_button_text), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int id) {
-						mGameManager.sendPacket(new PacketAnswer(false));
-					}
-				});
+		builder.setMessage(getString(R.string.replay_question))
+				.setCancelable(false)
+				.setPositiveButton(getString(R.string.yes_button_text),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								mGameManager.sendPacket(new PacketAnswer(true));
+								showReplay();
+							}
+						})
+				.setNegativeButton(getString(R.string.no_button_text),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								mGameManager
+										.sendPacket(new PacketAnswer(false));
+							}
+						});
 		builder.create().show();
 	}
 
@@ -509,26 +383,34 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 	 */
 	private void showSaveGameDialog() {
 		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(getString(R.string.save_game_question)).setCancelable(false)
-				.setPositiveButton(getString(R.string.yes_button_text), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int id) {
-						final Intent intent = new Intent(GameViewActivity.this, SavedGamesView.class);
-						startActivityForResult(intent, 0);
-						finish();
-					}
-				}).setNegativeButton(getString(R.string.no_button_text), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int id) {
-						finish();
-					}
-				}).setNeutralButton(getString(R.string.cancel_button_text), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int id) {
-						// do nothing
-					}
+		builder.setMessage(getString(R.string.save_game_question))
+				.setCancelable(false)
+				.setPositiveButton(getString(R.string.yes_button_text),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								final Intent intent = new Intent(
+										GameViewActivity.this,
+										SavedGamesView.class);
+								startActivityForResult(intent, 0);
+								finish();
+							}
+						})
+				.setNegativeButton(getString(R.string.no_button_text),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								finish();
+							}
+						})
+				.setNeutralButton(getString(R.string.cancel_button_text),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								// do nothing
+							}
 
-				});
+						});
 		builder.create().show();
 	}
 
@@ -537,18 +419,22 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 	 */
 	private void showPlayAgainDialog() {
 		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(getString(R.string.play_again_question)).setCancelable(true)
-				.setPositiveButton(getString(R.string.yes_button_text), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int id) {
-						mGameManager.playGameAgain();
-					}
-				}).setNegativeButton(getString(R.string.no_button_text), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int id) {
-						finish();
-					}
-				});
+		builder.setMessage(getString(R.string.play_again_question))
+				.setCancelable(true)
+				.setPositiveButton(getString(R.string.yes_button_text),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								mGameManager.playGameAgain();
+							}
+						})
+				.setNegativeButton(getString(R.string.no_button_text),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								finish();
+							}
+						});
 		builder.create().show();
 	}
 
