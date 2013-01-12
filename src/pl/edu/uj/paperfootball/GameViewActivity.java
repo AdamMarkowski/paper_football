@@ -7,9 +7,7 @@ import pl.edu.uj.paperfootball.bluetooth.AcceptThread;
 
 import pl.edu.uj.paperfootball.bluetooth.GameThread;
 import pl.edu.uj.paperfootball.bluetooth.GameThread.MoveState;
-import pl.edu.uj.paperfootball.packets.Packet;
 import pl.edu.uj.paperfootball.packets.PacketAnswer;
-import pl.edu.uj.paperfootball.packets.PacketType;
 import pl.edu.uj.paperfootball.state.StateRecorder;
 import pl.edu.uj.paperfootball.utils.RefreshHandler;
 import pl.edu.uj.paperfootball.utils.SavedGamesView;
@@ -241,17 +239,10 @@ public class GameViewActivity extends Activity implements
 	}
 
 	/**
-	 * Shows game replay if it is a game on one phone, otherwise sends packet to
-	 * the opponent with question whether to play a game replay.
+	 * Shows game replay
 	 */
 	private void showGameReplay() {
-		if (mGameMode == CLIENT || mGameMode == SERVER) {
-			mGameManager.sendPacket(new Packet(
-					PacketType.REQUEST_SHOW_GAME_REPLAY, true));
-			showWaitingForReplayDialog();
-		} else {
 			doAnimationPlay();
-		}
 	}
 
 	/**
@@ -343,13 +334,7 @@ public class GameViewActivity extends Activity implements
 		doAnimationPlay();
 	}
 
-	/**
-	 * Shows progress dialog.
-	 */
-	private void showWaitingForReplayDialog() {
-		mDialog = ProgressDialog.show(this, "",
-				getString(R.string.waiting_for_replay), true);
-	}
+
 
 	/**
 	 * Shows a dialog that allows the player to choose whether or not to show a
