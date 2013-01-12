@@ -44,7 +44,8 @@ public class MenuNewGameLoadGameActivity extends Activity {
 			newGame = false;
 			break;
 		default:
-			throw new IllegalArgumentException("Wrong game mode button " + view.getId());
+			throw new IllegalArgumentException("Wrong game mode button "
+					+ view.getId());
 		}
 
 		startGame(newGame);
@@ -54,7 +55,8 @@ public class MenuNewGameLoadGameActivity extends Activity {
 	 * Starts game activity.
 	 * 
 	 * @param newGame
-	 *            Value that indicates whether we should start a new game or load a saved game.
+	 *            Value that indicates whether we should start a new game or
+	 *            load a saved game.
 	 */
 	private void startGame(boolean newGame) {
 		final Intent intent;
@@ -67,10 +69,10 @@ public class MenuNewGameLoadGameActivity extends Activity {
 
 			if (mGameMode == GameViewActivity.TWO_PLAYERS_ONE_PHONE) {
 				// LOAD_GAME
-				intent.putExtra(GameViewActivity.EXTRA_GAME_MODE, GameViewActivity.TWO_PLAYER_ONE_PHONE_LOAD_GAME);
+				intent.putExtra(GameViewActivity.EXTRA_GAME_MODE,
+						GameViewActivity.TWO_PLAYER_ONE_PHONE_LOAD_GAME);
 			} else {
-				// LOAD_GAME via Bluetooth
-				intent.putExtra(GameViewActivity.EXTRA_GAME_MODE, GameViewActivity.SERVER_LOAD_GAME);
+
 			}
 		}
 

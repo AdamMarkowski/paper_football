@@ -34,21 +34,23 @@ public class MenuActivity extends Activity {
 
 		switch (view.getId()) {
 		case R.id.two_players_on_one_phone_button:
-			gameMode = GameViewActivity.TWO_PLAYERS_ONE_PHONE;
+//			gameMode = GameViewActivity.TWO_PLAYERS_ONE_PHONE;
+			startGame(gameMode);
 			break;
 		case R.id.help_button:
-			gameMode = GameViewActivity.HELP;
+//			gameMode = GameViewActivity.HELP;
+			showGameHelp();
 			break;
 		default:
 			throw new IllegalArgumentException("Wrong game mode button " + view.getId());
 		}
 
 		
-		if (gameMode == GameViewActivity.HELP) {
-			showGameHelp();
-		} else {
-			startGame(gameMode);	
-		}		
+//		if (gameMode == GameViewActivity.HELP) {
+//			showGameHelp();
+//		} else {
+//			startGame(gameMode);	
+//		}		
 	}
 
 	/**
