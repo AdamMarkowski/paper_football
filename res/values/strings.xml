@@ -42,10 +42,10 @@
     <string name="bluetooth_server_button">Bluetooth server game</string>
     <string name="bluetooth_client_button">Bluetooth client game</string>
     <string name="two_players_button">Dwóch graczy</string>
-    <string name="start_new_game_button">Start new game</string>
-    <string name="load_game_button">Load game</string>
+    <string name="start_new_game_button">Nowa gra</string>
+    <string name="load_game_button">Przywróć poprzednią grę</string>
     <string name="help_button">Pomoc</string>
     <string name="move_not_allowed">Naughty player :) Move not allowed</string>
-    <string name="game_description">PaperFootball is another game of paper-and-pencil type. The main purpose of this game is to place the ball in the opponent’s goal. Player can move ball from the current node to the neighboring one. If this neighboring node has been already visited or this is a node belonging to the field border then the player gets another turn. You can’t move along the game field borders or between nodes where a movement has already been made. The game ends when the ball is located in the goal node or when there is no possible way to make a move</string>
+    <string name="game_description">Opis gry</string>
     
 </resources>

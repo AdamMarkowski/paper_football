@@ -323,7 +323,7 @@ public class GameViewActivity extends Activity implements
 	 * Returns to the previous move.
 	 */
 	public void repeatMove() {
-		// TODO implementation is needed.
+		// TODO
 	}
 
 	/**
