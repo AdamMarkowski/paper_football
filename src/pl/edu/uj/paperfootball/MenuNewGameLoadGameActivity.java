@@ -65,15 +65,10 @@ public class MenuNewGameLoadGameActivity extends Activity {
 			intent = new Intent(this, GameViewActivity.class);
 			intent.putExtra(GameViewActivity.EXTRA_GAME_MODE, mGameMode);
 		} else {
+			// LOAD_GAME
 			intent = new Intent(this, LoadGame.class);
-
-			if (mGameMode == GameViewActivity.TWO_PLAYERS_ONE_PHONE) {
-				// LOAD_GAME
-				intent.putExtra(GameViewActivity.EXTRA_GAME_MODE,
+			intent.putExtra(GameViewActivity.EXTRA_GAME_MODE,
 						GameViewActivity.TWO_PLAYER_ONE_PHONE_LOAD_GAME);
-			} else {
-
-			}
 		}
 
 		startActivityForResult(intent, 0);

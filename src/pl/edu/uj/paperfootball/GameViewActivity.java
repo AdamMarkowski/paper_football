@@ -1,7 +1,6 @@
 package pl.edu.uj.paperfootball;
 
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
 import pl.edu.uj.paperfootball.bluetooth.AcceptThread;
@@ -22,7 +21,6 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -62,8 +60,6 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 	public static final int SERVER_LOAD_GAME = 6;
 	public static final int HELP = 7;
 
-	// Waiting timeout in milliseconds
-	private static final int WAITING_FOR_CLIENT_TIMEOUT = 120000;
 
 	// Views
 	private Button mShowGameReplayButton;
@@ -89,7 +85,6 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 	private final CountDownLatch mCountDownLatch;
 	private RefreshHandler mRefreshHandler;
 	private MoveState mMoveState;
-	private boolean mDeviceListTaken;
 	private int mGameMode;
 	private Vibrator mVibrator;
 
@@ -113,25 +108,10 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 
 		Intent intent = getIntent();
 		mGameMode = intent.getIntExtra(EXTRA_GAME_MODE, -1);
-		mDeviceListTaken = false;
 
 		initGame();
 
 		switch (mGameMode) {
-		case CLIENT:
-			enableBluetoothAsClient();
-			showConnectingDialog();
-			break;
-		case SERVER:
-			enableBluetoothAsServer();
-			showConnectingDialog();
-			break;
-		case SERVER_LOAD_GAME:
-			mGameMode = SERVER;
-			mMoveState = MoveState.MY_MOVE_SEND_MOVES_VIA_BLUETOOTH;
-			enableBluetoothAsServer();
-			showConnectingDialog();
-			break;
 		case TWO_PLAYERS_ONE_PHONE:
 			setMoveState(MoveState.WAIT_FOR_MY_MOVE);
 			break;
@@ -352,35 +332,7 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 		}
 	}
 
-	/**
-	 * Turns on Bluetooth if it is disabled otherwise shows DeviceListActivity.
-	 */
-	private void enableBluetoothAsClient() {
-		// If BT is not on, request that it be enabled.
-		if (!mBluetoothAdapter.isEnabled()) {
-			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-			startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-		} else {
-			// Otherwise, setup the session
-			if (!mDeviceListTaken) {
-				mDeviceListTaken = true;
-				Intent deviceList = new Intent(this, DeviceListActivity.class);
-				startActivityForResult(deviceList, REQUEST_CONNECT_DEVICE_INSECURE);
-			}
-		}
-	}
-
-	/**
-	 * Enables Bluetooth as server.
-	 */
-	private void enableBluetoothAsServer() {
-		if (!mBluetoothAdapter.isEnabled()) {
-			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-			startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-		} else {
-			startServerThreads();
-		}
-	}
+	
 
 	/**
 	 * Shows DeviceListActivity.
@@ -468,56 +420,8 @@ public class GameViewActivity extends Activity implements AnimationProcessListen
 		stateRecorder.clear();
 	}
 
-	/**
-	 * Shows connecting progress dialog.
-	 */
-	private void showConnectingDialog() {
-		String message;
-
-		if (mGameMode == CLIENT) {
-			message = getString(R.string.client_connecting);
-		} else {
-			message = getString(R.string.server_waiting);
-		}
-
-		mDialog = new ProgressDialog(this);
-		mDialog.setMessage(message);
-		mDialog.setCancelable(true);
-		mDialog.setCanceledOnTouchOutside(false);
-		mDialog.setOnCancelListener(new OnCancelListener() {
-
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				finish();
-			}
-		});
-
-		mDialog.show();
-		scheduleConnectingTimeout();
-	}
-
-	/**
-	 * Schedule timer task to finish activity after specified timeout.
-	 */
-	private void scheduleConnectingTimeout() {
-		if (mGameMode == SERVER) {
-			mConnectionTimeout.schedule(new TimerTask() {
-
-				@Override
-				public void run() {
-					runOnUiThread(new Runnable() {
-
-						@Override
-						public void run() {
-							Toast.makeText(getApplicationContext(), getString(R.string.connection_failed),
-									Toast.LENGTH_SHORT).show();
-							finish();
-						}
-					});
-				}
-			}, WAITING_FOR_CLIENT_TIMEOUT);
-		}
-	}
+	
+	
 
 	/**
 	 * Dismisses progress dialog.
