@@ -3,7 +3,8 @@ package pl.edu.uj.paperfootball.utils;
 import java.lang.ref.WeakReference;
 
 import pl.edu.uj.paperfootball.GameViewActivity;
-import pl.edu.uj.paperfootball.bluetooth.GameThread.MoveState;
+import pl.edu.uj.paperfootball.GameViewActivity.MoveState;
+
 
 import android.os.Handler;
 import android.os.Message;
@@ -104,11 +105,6 @@ public class RefreshHandler extends Handler {
 		case SHOW_REPLAY:
 			if (activity != null) {
 				activity.showReplay();
-			}
-			break;
-		case SHOW_CHOOSE_ANSWER:
-			if (activity != null && !activity.isFinishing()) {
-				activity.showChooseAnswerDialog();
 			}
 			break;
 		default:

@@ -3,11 +3,6 @@ package pl.edu.uj.paperfootball;
 import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
 
-import pl.edu.uj.paperfootball.bluetooth.AcceptThread;
-
-import pl.edu.uj.paperfootball.bluetooth.GameThread;
-import pl.edu.uj.paperfootball.bluetooth.GameThread.MoveState;
-import pl.edu.uj.paperfootball.packets.PacketAnswer;
 import pl.edu.uj.paperfootball.state.StateRecorder;
 import pl.edu.uj.paperfootball.utils.RefreshHandler;
 import pl.edu.uj.paperfootball.utils.SavedGamesView;
@@ -45,8 +40,6 @@ public class GameViewActivity extends Activity implements
 	private static final String TAG = GameViewActivity.class.getSimpleName();
 
 	public static final String EXTRA_GAME_MODE = "ExtraGameMode";
-	public static final int SERVER = 1;
-	public static final int CLIENT = 2;
 	public static final int TWO_PLAYERS_ONE_PHONE = 3;
 	public static final int TWO_PLAYER_ONE_PHONE_LOAD_GAME = 4;
 	public static final int LOAD_GAME = 5;
@@ -64,10 +57,9 @@ public class GameViewActivity extends Activity implements
 	// Game model
 	private CurrentPlaygroundState mCPS;
 
-	// Game threads
-	private AcceptThread mAcceptThread;
-
-	private GameThread mGameThread;
+	public static enum MoveState {
+		OPPONENT_MOVE, WAIT_FOR_MY_MOVE, MY_MOVE_SEND_MOVES_VIA_BLUETOOTH
+	};
 
 	// Other
 	private final Timer mConnectionTimeout;
@@ -143,9 +135,7 @@ public class GameViewActivity extends Activity implements
 			}
 		});
 
-		if (mGameMode == CLIENT) {
-			mCPS.setNextPlayerMove(true);
-		}
+
 
 		mGameManager = new GameManager(mGameSCanvasViewTop, gameCanvasBottom,
 				mCPS, mRefreshHandler, this);
@@ -180,27 +170,6 @@ public class GameViewActivity extends Activity implements
 		mCPS.clearChangePlayerCounter();
 		mGameManager.onDestroy();
 		mGameManager.removePropertyChangeListeners();
-
-		if (!mGameSCanvasViewTop.closeSCanvasView()) {
-			Log.e(TAG, "Fail to close SCanvasView");
-		}
-
-		// According to documentation: close() can be used to abort this call
-		// from another thread.
-		// Should close mServerSocket from AcceptThread class but causes SIGSEGV
-		// - do not use
-		// mAcceptThread.cancelServerSocket();
-		// workaround: cancelThread() function is called which sets the
-		// mRunThread flag
-
-		if (mGameMode == SERVER && mAcceptThread != null) {
-			mAcceptThread.cancelThread();
-		}
-
-		if (mGameThread != null) {
-			mGameThread.removePropertyChangeListeners();
-			mGameThread.interruptThread();
-		}
 
 		super.onDestroy();
 	}
@@ -336,32 +305,7 @@ public class GameViewActivity extends Activity implements
 
 
 
-	/**
-	 * Shows a dialog that allows the player to choose whether or not to show a
-	 * game replay.
-	 */
-	public void showChooseAnswerDialog() {
-		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(getString(R.string.replay_question))
-				.setCancelable(false)
-				.setPositiveButton(getString(R.string.yes_button_text),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int id) {
-								mGameManager.sendPacket(new PacketAnswer(true));
-								showReplay();
-							}
-						})
-				.setNegativeButton(getString(R.string.no_button_text),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int id) {
-								mGameManager
-										.sendPacket(new PacketAnswer(false));
-							}
-						});
-		builder.create().show();
-	}
+	
 
 	/**
 	 * Shows dialog with options to save current game.

@@ -6,11 +6,11 @@ import java.beans.PropertyChangeSupport;
 import java.util.Arrays;
 import java.util.List;
 
-import pl.edu.uj.paperfootball.bluetooth.GameThread.MoveState;
-import pl.edu.uj.paperfootball.packets.Packet;
-import pl.edu.uj.paperfootball.packets.PacketContinueGameViaBluetooth;
-import pl.edu.uj.paperfootball.packets.PacketMoveViaBluetooth;
-import pl.edu.uj.paperfootball.packets.PacketType;
+import pl.edu.uj.paperfootball.GameViewActivity.MoveState;
+
+
+
+
 import pl.edu.uj.paperfootball.state.SqliteStateRecorder;
 import pl.edu.uj.paperfootball.state.StateRecorder;
 import pl.edu.uj.paperfootball.utils.MoveLineForCanvas;
@@ -27,7 +27,7 @@ import pl.edu.uj.paperfootball.R;
 /**
  * Manages all events related with game such as connecting nodes, refreshing UI etc.
  */
-public class GameManager implements PropertyChangeListener {
+public class GameManager {
 
 	private static final float BALL_TOUCH_AREA_RADIUS = 40.0f;
 	private static final float MAX_DISTANCE_BETWEEN_NODE_AND_TOUCH_UP = 50.0f;
@@ -243,47 +243,7 @@ public class GameManager implements PropertyChangeListener {
 		}
 	}
 
-	/**
-	 * Called when received move via Bluetooth.
-	 * 
-	 * @param event
-	 *            Event with new property value.
-	 */
-	@Override
-	public void propertyChange(PropertyChangeEvent event) {
-
-		Object newValue = event.getNewValue();
-		Packet newBluetoothValue = (Packet) newValue;
-
-		if (newBluetoothValue.getPacketType() == PacketType.NEW_MOVE) {
-			PacketMoveViaBluetooth newBluetoothMove = (PacketMoveViaBluetooth) newValue;
-			Node newNodeBallPosition = mCPS.getNode(newBluetoothMove.getEndPoint());
-			setNodeBouncesAndSetChangePlayer(newNodeBallPosition);
-			moveBall(newNodeBallPosition);
-		} else if (newBluetoothValue.getPacketType() == PacketType.REQUEST_GAME_LOAD) {
-			// this is only for CLIENT
-			PacketContinueGameViaBluetooth moveslistPacket = (PacketContinueGameViaBluetooth) newValue;
-
-			List<Integer> moves = moveslistPacket.getPoints();
-			int size = moves.size();
-
-			for (int i = 0; i < size; i += 2) {
-				int x = moves.get(i);
-				int y = moves.get(i + 1);
-
-				Node newBallNode = mCPS.getNode(x, y);
-				setNodeBouncesAndSetChangePlayer(newBallNode);
-				moveBall(newBallNode);
-			}
-
-			if (mCPS.getChangePlayerCounter() % 2 != 0) {
-				Message msg = mRefreshHandler.obtainMessage();
-				msg.what = RefreshHandler.SET_MOVE_STATE;
-				msg.obj = MoveState.WAIT_FOR_MY_MOVE;
-				mRefreshHandler.sendMessage(msg);
-			}
-		}
-	}
+	
 
 	/**
 	 * Sets node state to bounces and also changes player.
@@ -313,11 +273,6 @@ public class GameManager implements PropertyChangeListener {
 	private void moveBallAndSendMoveViaBluetooth(Node newBallNode) {
 		boolean correctMove = moveBall(newBallNode);
 
-		if (correctMove || isGameFinished()) {
-			mPropertyChangeSupport.firePropertyChange("unused", null,
-					new PacketMoveViaBluetooth(mCPS.getBallNodePosition(), new Point(newBallNode.getNodePositionX(),
-							newBallNode.getNodePositionY()), mCPS.isNextPlayerMove()));
-		}
 	}
 
 	/**
@@ -474,15 +429,7 @@ public class GameManager implements PropertyChangeListener {
 		showToast(mGameViewActivity.getString(R.string.game_finished));
 	}
 
-	/**
-	 * Sends packet to the background thread.
-	 * 
-	 * @param packet
-	 *            Packet to send.
-	 */
-	public void sendPacket(Packet packet) {
-		mPropertyChangeSupport.firePropertyChange("none", null, packet);
-	}
+
 
 	public boolean isGameFinished() {
 		return mGameFinished;
