@@ -72,24 +72,10 @@ public class RefreshHandler extends Handler {
 				activity.finish();
 			}
 			break;
-		case SET_MOVE_STATE:
-			if (activity != null) {
-				final MoveState moveState = (MoveState) message.obj;
-				activity.setMoveState(moveState);
-				activity.updateWhoseMoveView(moveState);
-				activity.toggleShowGameReplayButton();
-			}
-			break;
 		case DISMISS_DIALOG:
 			if (activity != null) {
 				activity.dismissProgressDialog();
 				activity.cancelConnectionTimeout();
-			}
-			break;
-		case BLUETOOTH_ERROR:
-			if (activity != null) {
-				Toast.makeText(activity, "Bluetooth connection error", Toast.LENGTH_SHORT).show();
-				activity.finish();
 			}
 			break;
 		case VIBRATE:

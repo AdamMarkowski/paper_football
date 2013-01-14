@@ -367,23 +367,6 @@ public class GameViewActivity extends Activity implements
 		builder.create().show();
 	}
 
-	/**
-	 * Updates the text view with information about whose move is now.
-	 * 
-	 * @param moveState
-	 *            A value that indicates whose move should now be set.
-	 */
-	public void updateWhoseMoveView(MoveState moveState) {
-		String moveText;
-
-		if (moveState == MoveState.OPPONENT_MOVE) {
-			moveText = getString(R.string.opponent_move);
-		} else {
-			moveText = getString(R.string.your_move);
-		}
-
-		mWhoseMove.setText(moveText);
-	}
 
 	public GameSCanvasView getGameSCanvasViewTop() {
 		return mGameSCanvasViewTop;

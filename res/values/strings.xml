@@ -4,48 +4,31 @@
     <string name="app_name">PaperFootball</string>
 
     <!--  BluetoothGame -->
-    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Game.</string>
-    <string name="show_game_replay">Show game replay</string>
-    <string name="put_game_name">put game name here…</string>
-    <string name="save">Save</string>
-    <string name="trash_icon_description">Press to Deletes game</string>        
+    <string name="show_game_replay">Pokaż powtórkę</string>
+    <string name="put_game_name">nazwa gry:</string>
+    <string name="save">Zapisz</string>
+    <string name="trash_icon_description">Usuń grę</string>        
 
     <!--  DeviceListActivity -->
-    <string name="scanning">Scanning for devices…</string>
-    <string name="select_device">Select a device to connect</string>
-    <string name="none_paired">No devices have been paired</string>
-    <string name="none_found">No devices found</string>
-    <string name="title_paired_devices">Paired Devices</string>
-    <string name="title_other_devices">Other Available Devices</string>
-    <string name="button_scan">Scan for devices</string>
 
     <!-- Image descrptions -->
-    <string name="ball_image_desc">Ball image</string>
-    <string name="background_description">Background image</string>
+    <string name="ball_image_desc">Piłka</string>
+    <string name="background_description">Tło</string>
     
     <!-- GameManager -->
-    <string name="game_finished">Game finished</string>
+    <string name="game_finished">Koniec gry</string>
     
     <!-- GameViewActivity -->
-    <string name="play_again_question">Do you want to play again?</string>
-    <string name="yes_button_text">Yes</string>
-    <string name="no_button_text">No</string>
-    <string name="cancel_button_text">Cancel</string>
-    <string name="save_game_question">Do you want to save your game before quit?</string>
-    <string name="opponent_move">Opponent move</string>
-    <string name="your_move">Your move</string>
-    <string name="waiting_for_replay">Waiting for oponnent response</string>
-    <string name="replay_question">Opponent wants to show game replay</string>
-    <string name="client_connecting">Connecting</string>
-    <string name="server_waiting">Waiting for client</string>
-    <string name="connection_failed">Connection failed</string>
-    <string name="bluetooth_server_button">Bluetooth server game</string>
-    <string name="bluetooth_client_button">Bluetooth client game</string>
+    <string name="play_again_question">Chcesz zagrać ponownie?</string>
+    <string name="yes_button_text">Tak</string>
+    <string name="no_button_text">Nie</string>
+    <string name="cancel_button_text">Anuluj</string>
+    <string name="save_game_question">Czy chcesz zapisać stan gry?</string>
     <string name="two_players_button">Dwóch graczy</string>
     <string name="start_new_game_button">Nowa gra</string>
     <string name="load_game_button">Przywróć poprzednią grę</string>
     <string name="help_button">Pomoc</string>
-    <string name="move_not_allowed">Naughty player :) Move not allowed</string>
+    <string name="move_not_allowed">Nie ładnie :) ruch niedozwolony!</string>
     <string name="game_description">Opis gry</string>
     
 </resources>
