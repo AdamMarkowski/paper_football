@@ -1,0 +1,73 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".NewGame" >
+
+    <TextView
+        android:id="@+id/name1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="Large Text"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/name2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="Large Text"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+<!--     <TextView -->
+<!--         android:id="@+id/score1" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:layout_alignParentTop="true" -->
+<!--         android:layout_marginRight="5dp" -->
+<!--         android:layout_toLeftOf="@+id/semicolon" -->
+<!--         android:text="0" -->
+<!--         android:textAppearance="?android:attr/textAppearanceLarge" /> -->
+
+<!--     <TextView -->
+<!--         android:id="@+id/semicolon" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:layout_alignParentTop="true" -->
+<!--         android:layout_centerHorizontal="true" -->
+<!--         android:text=":" -->
+<!--         android:textAppearance="?android:attr/textAppearanceLarge" /> -->
+    
+<!--     <TextView -->
+<!--         android:id="@+id/score2" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:layout_alignParentTop="true" -->
+<!--         android:layout_marginLeft="5dp" -->
+<!--         android:layout_toRightOf="@+id/semicolon" -->
+<!--         android:text="0" -->
+<!--         android:textAppearance="?android:attr/textAppearanceLarge" /> -->
+
+<!--     <Button -->
+<!--         android:id="@+id/goal1" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:layout_alignParentLeft="true" -->
+<!--         android:layout_centerVertical="true" -->
+<!--         android:text="Gol1" -->
+<!--         android:onClick = "scoreGoal1" /> -->
+
+<!--     <Button -->
+<!--         android:id="@+id/goal2" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:layout_alignBaseline="@+id/goal1" -->
+<!--         android:layout_alignBottom="@+id/goal1" -->
+<!--         android:layout_alignParentRight="true" -->
+<!--         android:text="Gol1"  -->
+<!--         android:onClick = "scoreGoal2"/> -->
+
+</RelativeLayout>
