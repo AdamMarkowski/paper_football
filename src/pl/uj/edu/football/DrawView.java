@@ -26,7 +26,7 @@ public class DrawView extends View implements OnTouchListener {
     Paint playerColor2 = new Paint();
     int countW = 6;
 	int countH = 8;
-    int XYplane[][][] = new int[countW+2][countH+2][9]; // 8 directions of move + visited flag
+    int XYplane[][][] = new int[countW+1][countH+3][9]; // 8 directions of move + visited flag
     float BallX = 0;
     float BallY = 0;
     float dX, dY, StartX, StartY;
@@ -86,13 +86,13 @@ public class DrawView extends View implements OnTouchListener {
     		canvas.drawLine(StartX, StartY+i*dY, StartX + countW*dX, StartY + i*dY, paint2);
     	}
     	//Rysunek bramek
-    	canvas.drawLine(StartX+(countW/2-1)*dX,  StartY, StartX+(countW/2-1)*dX, StartY-(dY),paint2);
-    	canvas.drawLine(StartX+(countW/2+1)*dX,  StartY, StartX+(countW/2+1)*dX, StartY-(dY),paint2);
-    	canvas.drawLine(StartX+(countW/2-1)*dX,  StartY-(dY), StartX+(countW/2+1)*dX, StartY-(dY),paint2);
+    	canvas.drawLine(StartX+(countW/2-1)*dX,  StartY, StartX+(countW/2-1)*dX, StartY-(dY),playerColor1);
+    	canvas.drawLine(StartX+(countW/2+1)*dX,  StartY, StartX+(countW/2+1)*dX, StartY-(dY),playerColor1);
+    	canvas.drawLine(StartX+(countW/2-1)*dX,  StartY-(dY), StartX+(countW/2+1)*dX, StartY-(dY),playerColor1);
     	//Rysunek bramki dolnej
-    	canvas.drawLine(StartX+(countW/2-1)*dX,  StartY+countH*dY, StartX+(countW/2-1)*dX, StartY+countH*dY+(dY),paint2);
-    	canvas.drawLine(StartX+(countW/2+1)*dX,  StartY+countH*dY, StartX+(countW/2+1)*dX, StartY+countH*dY+(dY),paint2);
-    	canvas.drawLine(StartX+(countW/2-1)*dX,  StartY+countH*dY+(dY), StartX+(countW/2+1)*dX, StartY+countH*dY+(dY),paint2);
+    	canvas.drawLine(StartX+(countW/2-1)*dX,  StartY+countH*dY, StartX+(countW/2-1)*dX, StartY+countH*dY+(dY),playerColor2);
+    	canvas.drawLine(StartX+(countW/2+1)*dX,  StartY+countH*dY, StartX+(countW/2+1)*dX, StartY+countH*dY+(dY),playerColor2);
+    	canvas.drawLine(StartX+(countW/2-1)*dX,  StartY+countH*dY+(dY), StartX+(countW/2+1)*dX, StartY+countH*dY+(dY),playerColor2);
     	
     	//Draw the ball in the center of the FIELD!!!!!!!!!!!!!!!!!!!!!!
     	canvas.drawCircle(BallX, BallY, 10, paintBall);
@@ -132,14 +132,16 @@ public class DrawView extends View implements OnTouchListener {
         	canvas.drawCircle(before.x, before.y, 5, paint2);
 //        	 Log.d(TAG, "Prosta: " +points.get(0).x + " "+ points.get(0).y+" "+ points.get(1).x+" "+ points.get(1).y);
         	//Drawing the score and players names
-        	canvas.drawText(Singleton.getName1() + "  " + Singleton.getScore1()+ " : " + Singleton.getScore2() + "  " + Singleton.getName2(), (float)50, (float)50, paint2);
-
+        	canvas.drawText(Singleton.getName1() + "  " + Singleton.getScore1(), (float)100, (float)50, playerColor1);
+        	canvas.drawText(Singleton.getName2() + "  " + Singleton.getScore2(), (float)(canvas.getWidth()-100), (float)50, playerColor2);
     }
     
     private boolean isTheFieldEmpty(float xx, float yy, int direction){
     	int x = (int)Math.round((xx-StartX)/dX);
-    	int y = (int)Math.round((yy-StartY)/dY);
-    	if((x == countW/2 || x == countW/2-1 || x == countW/2+1) && (y == countH+2 || y == -1)) return true;
+    	int y = (int)Math.round((yy-StartY)/dY)+1;
+    	if(y == 0) {scoredGoal(true);return false;}
+    	else if(y == countH+2) {scoredGoal(false); return false;}
+    	if((x == countW/2 || x == countW/2-1 || x == countW/2+1) && (y == countH+2 || y == 0)) return true;
     	if(x<0 || y<0) return false;
     	if(x>countW+1 || y>countH+1) return false;
     	if(this.XYplane[x][y][direction] == 1) return false;
@@ -148,15 +150,23 @@ public class DrawView extends View implements OnTouchListener {
     }
     private void setVisitedDirection(float xx, float yy, int direction){
     	int x = (int)Math.round((xx-StartX)/dX);
-    	int y = (int)Math.round((yy-StartY)/dY);
+    	int y = (int)Math.round((yy-StartY)/dY)+1;
     	this.XYplane[x][y][direction] = 1;
     }
     private void setVisited(float xx, float yy){
     	int x = (int)Math.round((xx-StartX)/dX);
-    	int y = (int)Math.round((yy-StartY)/dY);
+    	int y = (int)Math.round((yy-StartY)/dY)+1;
     	this.XYplane[x][y][8] = 1;
     }
-    
+    private void reset(){
+    	points = new ArrayList<Point>();
+        turns = new Vector<Boolean>();
+        turns.add(true);
+        XYplane = new int[countW+1][countH+3][9]; // 8 directions of move + visited flag
+        BallX = 0;
+        BallY = 0;
+        
+    }
     private void scoredGoal(Boolean player){
     	if(player){
     		toast=Toast.makeText(Singleton.getContext(), "GOOOL dla " + Singleton.getName1()+"!!!", Toast.LENGTH_SHORT);
@@ -167,10 +177,11 @@ public class DrawView extends View implements OnTouchListener {
     		Singleton.addScore2();
     	}
     	toast.show();
+    	reset();
     }
     private void checkWhoseTurnIsIt(float xx, float yy){
     	int x = (int)Math.round((xx-StartX)/dX);
-    	int y = (int)Math.round((yy-StartY)/dY);
+    	int y = (int)Math.round((yy-StartY)/dY)+1;
     	if(this.XYplane[x][y][8] == 1){
     		turns.add(playersTurn);
     	}
@@ -221,6 +232,8 @@ public class DrawView extends View implements OnTouchListener {
         boolean upY = point.y < BallY - 0.8*dY && point.y > BallY - 1.2*dY;
         boolean consY = point.y < BallY +0.2*dY && point.y > BallY -0.2*dY;
         boolean downY = point.y < BallY+1.2*dY && point.y > BallY + 0.8*dY;
+//        boolean notBorderX = ((point.y > StartY-0.2*dY && point.y < StartY+0.2*dY) || (point.y > StartY+(countH+1)*dY-0.2*dY && point.y < StartY+(countH+1)*dY+0.2*dY)) && consX;
+//        boolean notBorderY = ((point.x > StartX-0.2*dX && point.x < StartX+0.2*dX) || (point.x > StartX+(countW+1)*dX-0.2*dX && point.x < StartX+(countW+1)*dX+0.2*dX)) && consY;
         if((rightX || consX || leftX) && (upY || consY || downY) && !(consX && consY)){
         	
 //        	this.BallX = (float)Math.round(point.x);

@@ -25,6 +25,7 @@ public class NewGame extends Activity {
         setContentView(drawView);
 		name1 = (TextView)findViewById(R.id.name1); 
 		name2 = (TextView)findViewById(R.id.name2);
+		Singleton.resetScore();
         drawView.requestFocus();
         Singleton.setContext(getApplicationContext());
     }

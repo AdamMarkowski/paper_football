@@ -29,6 +29,9 @@ public class Singleton {
 	public static void addScore2(){
 		score2++;
 	}
+	public static void resetScore(){
+		score1 = score2 = 0;
+	}
 	
 	//Getters
 	public static String getName1(){
