@@ -22,8 +22,8 @@ public class DrawView extends View implements OnTouchListener {
     Paint paint = new Paint();
     Paint paint2 = new Paint();
     Paint paintBall = new Paint();
-    Paint playerColor1 = new Paint();
-    Paint playerColor2 = new Paint();
+    final Paint playerColor1 = new Paint();
+    final Paint playerColor2 = new Paint();
     int countW = 6;
 	int countH = 8;
     int XYplane[][][] = new int[countW+1][countH+3][9]; // 8 directions of move + visited flag
@@ -52,6 +52,10 @@ public class DrawView extends View implements OnTouchListener {
         paintBall.setAntiAlias(true);
         playerColor1.setColor(Color.BLUE);
         playerColor2.setColor(Color.RED);
+        playerColor1.setTextSize(20);
+        playerColor1.setAntiAlias(true);
+        playerColor2.setTextSize(20);
+        playerColor2.setAntiAlias(true);
     }
 
     @Override
@@ -75,8 +79,8 @@ public class DrawView extends View implements OnTouchListener {
     		points.add(point);
     	}
     	
-    	if(playersTurn) this.paint = this.playerColor1;
-    	else this.paint = this.playerColor2;
+    	if(playersTurn) this.paint.setColor(Color.BLUE);
+    	else this.paint.setColor(Color.RED);
     	
 //    	XYplane[(int)Math.round((BallX-StartX)/dX)][(int)Math.round((BallY-StartY)/dY)+1] = 1;
     	for(int i = 0; i<countW+1; i++){
@@ -232,9 +236,9 @@ public class DrawView extends View implements OnTouchListener {
         boolean upY = point.y < BallY - 0.8*dY && point.y > BallY - 1.2*dY;
         boolean consY = point.y < BallY +0.2*dY && point.y > BallY -0.2*dY;
         boolean downY = point.y < BallY+1.2*dY && point.y > BallY + 0.8*dY;
-//        boolean notBorderX = ((point.y > StartY-0.2*dY && point.y < StartY+0.2*dY) || (point.y > StartY+(countH+1)*dY-0.2*dY && point.y < StartY+(countH+1)*dY+0.2*dY)) && consX;
-//        boolean notBorderY = ((point.x > StartX-0.2*dX && point.x < StartX+0.2*dX) || (point.x > StartX+(countW+1)*dX-0.2*dX && point.x < StartX+(countW+1)*dX+0.2*dX)) && consY;
-        if((rightX || consX || leftX) && (upY || consY || downY) && !(consX && consY)){
+        boolean notBorderX = !(((Math.abs(point.y-StartY)<0.2*dY) || (Math.abs(point.y-StartY-(countH+1)*dY)< 0.2*dY)) && consX);
+        boolean notBorderY = !(((Math.abs(point.x-StartX)<0.2*dX) || (Math.abs(point.x-StartX-(countW+1)*dX)< 0.2*dX)) && consY);
+        if((rightX || consX || leftX) && (upY || consY || downY) && !(consX && consY) && notBorderX && notBorderY){
         	
 //        	this.BallX = (float)Math.round(point.x);
 //        	this.BallY = (float)Math.round(point.y);
